@@ -22,21 +22,17 @@
         <div id="shortUrlContainer">
             <label for="shortUrl">resulted short URL</label>
             <b><p id="shortUrl">$shortUrl</p></b>
-            <p id="shortUrlLink"><a href=$shortUrl onclick="openOriginalLink('$originalUrl');return false;">Open short url</a></p>
+            <p id="shortUrlLink"><a href=$shortUrl onclick="$originalUrl" target="_blank">Open short url</a></p>
         </div>
     </div>
+
+    <script>
+        var parent = document.getElementById("resultsContainer");
+        var longUrl = document.getElementById("longUrl");
+        if(longUrl.innerText == "") {
+            parent.removeChild(longUrlContainer);
+            parent.removeChild(shortUrlContainer);
+        }
+    </script>
 </body>
-
-<script>
-    var parent = document.getElementById("resultsContainer");
-    var longUrl = document.getElementById("longUrl");
-    if(longUrl.innerText == "") {
-        parent.removeChild(longUrlContainer);
-        parent.removeChild(shortUrlContainer);
-    }
-
-    function openOriginalLink($originalUrl) {
-        window.open($originalUrl, '_blank');
-    }
-</script>
 </html>
