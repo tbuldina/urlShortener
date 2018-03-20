@@ -1,0 +1,21 @@
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+.target
+dependency-reduced-pom.xml
+
+# IntelliJ Idea
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+.DS_Store
+classes/
+**/target/
+*.log
+

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+</head>
+<body>
+    <p>Enter URL for shortening</p>
+    <form method="POST" action="index"/>
+        <input id="url" name="url" type="text" value="" />
+        <input id="btn" type="submit" value="Shorten" onclick="shorten()">
+    <br>
+    </form>
+
+    <br>
+    <br>
+    <div id="resultsContainer">
+        <div id="longUrlContainer">
+            <label for="longUrl">Following URL: </label><b>
+            <p id="longUrl">$longUrl</p></b>
+        </div>
+        <br>
+        <div id="shortUrlContainer">
+            <label for="shortUrl">resulted short URL</label>
+            <b><p id="shortUrl">$shortUrl</p></b>
+            <p id="shortUrlLink"><a href=$shortUrl onclick="openOriginalLink('$originalUrl');return false;">Open short url</a></p>
+        </div>
+    </div>
+</body>
+
+<script>
+    var parent = document.getElementById("resultsContainer");
+    var longUrl = document.getElementById("longUrl");
+    if(longUrl.innerText == "") {
+        parent.removeChild(longUrlContainer);
+        parent.removeChild(shortUrlContainer);
+    }
+
+    function openOriginalLink($originalUrl) {
+        window.open($originalUrl, '_blank');
+    }
+</script>
+</html>
