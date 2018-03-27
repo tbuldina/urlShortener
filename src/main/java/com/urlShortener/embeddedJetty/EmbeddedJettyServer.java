@@ -38,7 +38,7 @@ public class EmbeddedJettyServer {
         servletHandler.addServletWithMapping(RedirectServlet.class, "/");
         jettyServer.setHandler(servletHandler);
 
-        dbConnector = new DbConnector(properties.getDatabaseUrl());
+        dbConnector = new DbConnector();
 
         try {
             jettyServer.start();

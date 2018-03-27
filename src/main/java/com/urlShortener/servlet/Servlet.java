@@ -11,9 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import com.urlShortener.shortener.UrlShortener;
-
-import static com.urlShortener.embeddedJetty.EmbeddedJettyServer.dbConnector;
-import static com.urlShortener.embeddedJetty.EmbeddedJettyServer.properties;
+import com.urlShortener.utils.PropertiesLoader;
 
 /**
  * Created by tbuldina on 14/03/2018.
@@ -21,6 +19,7 @@ import static com.urlShortener.embeddedJetty.EmbeddedJettyServer.properties;
 public class Servlet extends HttpServlet {
     public HashMap<String, String> selects = new HashMap();
     public UrlShortener urlShortener = new UrlShortener();
+    public PropertiesLoader properties = new PropertiesLoader();
     public String domain = "http://" + properties.getJettyHost() + ":" + properties.getJettyPort().toString() + "/";
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -41,16 +40,14 @@ public class Servlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String longUrl = request.getParameter("url");
-        String originalUrl = null;
 
         String xml = IOUtils.toString(this.getClass().getResourceAsStream("/index.html"), "UTF-8");
 
         if (!UrlUtilities.isUrlEmpty(longUrl)) {
             String shortUrl = urlShortener.encodeUrl(longUrl);
-            originalUrl = dbConnector.selectUrlByShortUrl(shortUrl);
             selects.put("$longUrl", longUrl);
             selects.put("$shortUrl", domain + shortUrl);
-            selects.put("$originalUrl", UrlUtilities.makeUrlClickable(originalUrl));
+            selects.put("$originalUrl", UrlUtilities.makeUrlClickable(longUrl));
         }
         else {
             selects.put("$longUrl", longUrl);

@@ -20,12 +20,14 @@ in case database already contain such url their identificator used)
 3. Save short url (base62) in database
 
 ## How to use ##
-1. *mvn exec:java*
+1. *mvn install*
 
-2. Application starts by default on port 8680
+2. *mvn exec:java*
+
+3. Application starts by default on port 8680
 and accessible on http://localhost:8680/index
 
-3. Also you can run it on different port
+4. Also you can run it on different port
 
    *mvn exec:java -Djetty.port={port}*
 

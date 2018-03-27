@@ -1,5 +1,4 @@
 import com.urlShortener.db.DbConnector;
-import com.urlShortener.utils.PropertiesLoader;
 import org.junit.*;
 import com.urlShortener.shortener.UrlShortener;
 import static com.urlShortener.embeddedJetty.EmbeddedJettyServer.dbConnector;
@@ -14,8 +13,7 @@ public class TestUrlShortener {
 
     @BeforeClass
     public static void connectToDb() {
-        PropertiesLoader prop = new PropertiesLoader();
-        dbConnector = new DbConnector(prop.getDatabaseUrl());
+        dbConnector = new DbConnector();
     }
 
     // Encoding
@@ -150,15 +148,21 @@ public class TestUrlShortener {
 
     // http - https - no protocol
     @Test
-    public void testUrlsWithProtocolPart() {
-        assertNotEquals("Urls with http:// and without actually resulted the same short urls, but should not",
+    public void testUrlsWithHttp() {
+        assertEquals("Urls with http:// and without actually resulted not the same short urls",
                 urlShortener.encodeUrl("http://example"), urlShortener.encodeUrl("example"));
     }
 
     @Test
-    public void testUrlsWithDifferentProtocol() {
+    public void testUrlsWithDifferentProtocols() {
         assertNotEquals("Urls with http:// and https:// actually resulted the same short urls, but should not",
                 urlShortener.encodeUrl("http://example"), urlShortener.encodeUrl("https://example"));
+    }
+
+    @Test
+    public void testUrlsWithHttps() {
+        assertNotEquals("Urls with https:// and without actually resulted the same short urls, but should not",
+                urlShortener.encodeUrl("https://example"), urlShortener.encodeUrl("example"));
     }
 
     @AfterClass

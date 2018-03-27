@@ -28,11 +28,25 @@ public class UrlShortener {
         int id = 0;
         if (UrlUtilities.isUrlEmpty(longUrl)) return "";
         longUrl = longUrl.toLowerCase().trim();
-        dbConnector.insertUrl(longUrl);
-        id = dbConnector.selectIdByUrl(longUrl);
+        String shortUrl;
+        String longUrlModified;
 
-        String shortUrl = encode(id);
-        dbConnector.insertShortUrl(longUrl, shortUrl);
+        if (!longUrl.startsWith("https://")) {
+            if (longUrl.startsWith("http://")) longUrlModified = longUrl.substring(7);
+            else longUrlModified = "http://" + longUrl;
+
+            if (dbConnector.isUrlExist(longUrlModified)) {
+                shortUrl = dbConnector.selectShortUrlByLongUrl(longUrlModified);
+                return shortUrl;
+            }
+        }
+        if (dbConnector.isUrlExist(longUrl)) {
+            shortUrl = dbConnector.selectShortUrlByLongUrl(longUrl);
+        } else {
+            id = dbConnector.insertUrl(longUrl);
+            shortUrl = encode(id);
+            dbConnector.insertShortUrl(longUrl, shortUrl);
+        }
         return shortUrl;
     }
 

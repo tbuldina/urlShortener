@@ -13,9 +13,6 @@ public class UrlUtilities {
     }
 
     public static Boolean isUrlEmpty(String longUrl) {
-        Boolean isEmpty = false;
-        if (longUrl==null || longUrl.trim().isEmpty())
-            isEmpty = true;
-        return isEmpty;
+        return (longUrl==null || longUrl.trim().isEmpty());
     }
 }
