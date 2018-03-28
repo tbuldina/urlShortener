@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class DbConnector {
 
     PropertiesLoader properties = new PropertiesLoader();
-    public String dbUrl = properties.getDatabaseUrl() + ";create=true";
+    public String dbUrl = properties.getDatabaseUrl();
     public Connection conn;
     public PreparedStatement prstmt;
     private static final Logger logger = Logger.getLogger(DbConnector.class.getName());

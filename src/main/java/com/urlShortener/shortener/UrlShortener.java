@@ -3,7 +3,6 @@ package com.urlShortener.shortener;
 import com.urlShortener.utils.UrlUtilities;
 
 import static com.urlShortener.embeddedJetty.EmbeddedJettyServer.dbConnector;
-
 /**
  * Created by tbuldina on 16/03/2018.
  */

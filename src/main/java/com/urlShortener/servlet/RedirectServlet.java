@@ -2,6 +2,7 @@ package com.urlShortener.servlet;
 
 import com.urlShortener.shortener.UrlShortener;
 import com.urlShortener.utils.UrlUtilities;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpStatus;
 
 import javax.servlet.ServletException;
@@ -16,15 +17,17 @@ public class RedirectServlet extends HttpServlet {
     public UrlShortener urlShortener = new UrlShortener();
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setStatus(HttpStatus.OK_200);
 
         String path = request.getServletPath();
         String url = dbConnector.selectUrlByShortUrl(path.substring(1));
         if (!url.equals("shortUrl not found")) {
+            response.setStatus(HttpStatus.OK_200);
             response.sendRedirect(UrlUtilities.makeUrlClickable(url));
         }
         else {
-            response.sendRedirect(path);
+            response.setStatus(HttpStatus.NOT_FOUND_404);
+            String xml = IOUtils.toString(this.getClass().getResourceAsStream("/notFound.html"), "UTF-8");
+            response.getWriter().println(xml);
         }
     }
 }

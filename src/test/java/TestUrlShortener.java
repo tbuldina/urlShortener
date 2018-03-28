@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNotEquals;
  * Created by tbuldina on 16/03/2018.
  */
 public class TestUrlShortener {
-    UrlShortener urlShortener = new UrlShortener();
+    public static UrlShortener urlShortener = new UrlShortener();
 
     @BeforeClass
     public static void connectToDb() {
@@ -164,4 +164,16 @@ public class TestUrlShortener {
         assertNotEquals("Urls with https:// and without actually resulted the same short urls, but should not",
                 urlShortener.encodeUrl("https://example"), urlShortener.encodeUrl("example"));
     }
+
+    // encode(int num)
+    @Test
+    public void testEncode1() {
+        assertEquals("'1' is encoded incorrectly", "b", urlShortener.encode(1));
+    }
+
+    @Test
+    public void testEncode1000() {
+        assertEquals("'1000' is encoded incorrectly", "qi", urlShortener.encode(1000));
+    }
+
 }

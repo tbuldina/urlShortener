@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import com.urlShortener.shortener.UrlShortener;
-import com.urlShortener.utils.PropertiesLoader;
+import static com.urlShortener.embeddedJetty.EmbeddedJettyServer.properties;
 
 /**
  * Created by tbuldina on 14/03/2018.
@@ -19,7 +19,6 @@ import com.urlShortener.utils.PropertiesLoader;
 public class Servlet extends HttpServlet {
     public HashMap<String, String> selects = new HashMap();
     public UrlShortener urlShortener = new UrlShortener();
-    public PropertiesLoader properties = new PropertiesLoader();
     public String domain = "http://" + properties.getJettyHost() + ":" + properties.getJettyPort().toString() + "/";
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

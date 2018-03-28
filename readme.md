@@ -20,7 +20,7 @@ in case database already contain such url their identificator used)
 3. Save short url (base62) in database
 
 ## How to use ##
-1. *mvn install*
+1. *mvn package*
 
 2. *mvn exec:java*
 
@@ -33,10 +33,6 @@ and accessible on http://localhost:8680/index
 
 ## Technologies ##
 - Embedded Jetty server
-- Java in-memory database
-
-##### Unit tests #####
-Method encodeUrl(longUrl) is covered by *junit* tests
-
+- Derby java in-memory database
 
 
