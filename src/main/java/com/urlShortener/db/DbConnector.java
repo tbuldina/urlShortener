@@ -16,30 +16,17 @@ public class DbConnector {
     PropertiesLoader properties = new PropertiesLoader();
     public String dbUrl = properties.getDatabaseUrl() + ";create=true";
     public Connection conn;
-    public Statement stmt;
+    public PreparedStatement prstmt;
     private static final Logger logger = Logger.getLogger(DbConnector.class.getName());
 
     public DbConnector() {
-        connectToDb(dbUrl);
         createTable(dbUrl);
-    }
-
-    public void connectToDb(String dbUrl) {
-        try {
-            conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
-
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Exception on connecting to database: " + e.getMessage());
-            throw new RuntimeException("[ERROR] " + e.getMessage());
-        }
-        logger.log(Level.INFO, "Connected to database");
     }
 
     public void createTable(String dbUrl) {
         try {
             conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
+            Statement stmt = conn.createStatement();
             stmt.executeUpdate("create table urls ("
                     + "id int not null generated always as identity, "
                     + "url varchar(10000), "
@@ -50,7 +37,8 @@ public class DbConnector {
             stmt.executeUpdate("create index ix_url on urls (url)");
             stmt = conn.createStatement();
             stmt.executeUpdate("create index ix_shorturl on urls (shorturl)");
-
+            stmt.close();
+            conn.close();
         }
         catch (SQLException e) {
             logger.log(Level.SEVERE, "Exception on creating table: " + e.getMessage());
@@ -62,12 +50,20 @@ public class DbConnector {
     public Integer insertUrl(String urlToInsert) {
         try {
             conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
-            stmt.executeUpdate("INSERT INTO urls (url) VALUES ('" + urlToInsert + "')");
+
+            String query = "INSERT INTO urls (url) VALUES (?) ";
+            prstmt = conn.prepareStatement(query);
+            prstmt.setString(1, urlToInsert);
+            prstmt.executeUpdate();
             logger.info("Inserted url '" + urlToInsert + "'");
-            ResultSet maxIdRS = stmt.executeQuery("SELECT MAX(id) from urls");
+
+            query = "SELECT MAX(id) from urls";
+            prstmt = conn.prepareStatement(query);
+            ResultSet maxIdRS = prstmt.executeQuery();
             maxIdRS.next();
             int maxId = maxIdRS.getInt(1);
+            prstmt.close();
+            conn.close();
             return maxId;
         }
         catch (SQLException e) {
@@ -79,11 +75,14 @@ public class DbConnector {
     public Integer getRecordCountInDB() {
         try {
             conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS count FROM urls");
+            String query = "SELECT COUNT(*) AS count FROM urls";
+            prstmt = conn.prepareStatement(query);
+            ResultSet rs = prstmt.executeQuery();
             rs.next();
             int totalRecordCount = rs.getInt("count");
             logger.log(Level.INFO, "Total record count: " + totalRecordCount);
+            prstmt.close();
+            conn.close();
             return totalRecordCount;
         }
         catch (SQLException e) {
@@ -95,10 +94,11 @@ public class DbConnector {
     public Boolean isUrlExist(String url) {
         try {
             conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS count FROM urls WHERE url = '" + url + "'");
+            String query = "SELECT COUNT(*) AS count FROM urls WHERE url = ? ";
+            prstmt = conn.prepareStatement(query);
+            prstmt.setString(1, url);
+            ResultSet rs = prstmt.executeQuery();
             rs.next();
-
             if (rs.getInt("count")>0) {
                 logger.log(Level.INFO, "Url '" + url + "' already exists in table");
                 return true;
@@ -112,31 +112,29 @@ public class DbConnector {
             logger.log(Level.SEVERE, "Exception on selecting count of urls " + url + e.getMessage());
             throw new RuntimeException("[ERROR] " + e.getMessage());
         }
-    }
-
-    public int selectIdByUrl(String url) {
-        try {
-            conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT id FROM urls WHERE url = '" + url + "'");
-
-            if (rs.next())
-                return rs.getInt("id");
-            else
-                return 0;
-        }
-        catch (SQLException e) {
-            logger.log(Level.SEVERE, "Exception on selecting url " + url + e.getMessage());
-            throw new RuntimeException("[ERROR] " + e.getMessage());
+        finally {
+            try {
+                prstmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void insertShortUrl(String longUrl, String shortUrl) {
         try {
             conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
-            stmt.executeUpdate("UPDATE urls SET shorturl = '" + shortUrl + "' WHERE url = '" + longUrl + "'");
+
+            String query = "UPDATE urls SET shorturl = ? WHERE url = ?";
+            prstmt = conn.prepareStatement(query);
+            prstmt.setString(1, shortUrl);
+            prstmt.setString(2, longUrl);
+            prstmt.executeUpdate();
+
             logger.info("Inserted shortUrl '" + shortUrl + "' for " + longUrl);
+            prstmt.close();
+            conn.close();
         }
         catch (SQLException e) {
             logger.log(Level.SEVERE, "Exception on inserting shortUrl " + shortUrl  + "' for " + longUrl + e.getMessage());
@@ -147,11 +145,18 @@ public class DbConnector {
     public String selectUrlByShortUrl(String shortUrl) {
         try {
             conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT url FROM urls where shorturl = '" + shortUrl + "'");
+
+
+            String query = "SELECT url FROM urls where shorturl = ?";
+            prstmt = conn.prepareStatement(query);
+            prstmt.setString(1, shortUrl);
+            ResultSet rs = prstmt.executeQuery();
             rs.next();
+            String url = rs.getString("url");
             logger.log(Level.INFO, "Url '" + rs.getString("url") + "' has short url = " + shortUrl);
-            return rs.getString("url");
+            prstmt.close();
+            conn.close();
+            return url;
         }
         catch (SQLException e) {
             logger.log(Level.INFO, "There is no shortUrl '" + shortUrl + "' in database " + shortUrl);
@@ -162,28 +167,20 @@ public class DbConnector {
     public String selectShortUrlByLongUrl(String longUrl) {
         try {
             conn = DriverManager.getConnection(dbUrl);
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT shortUrl FROM urls where url = '" + longUrl + "'");
+
+            String query = "SELECT shortUrl FROM urls where url = ?";
+            prstmt = conn.prepareStatement(query);
+            prstmt.setString(1, longUrl);
+            ResultSet rs = prstmt.executeQuery();
             rs.next();
+            String shortUrl = rs.getString("shortUrl");
             logger.log(Level.INFO, "LongUrl '" + longUrl + "' has shortUrl '" + rs.getString("shortUrl"));
-            return rs.getString("shortUrl");
+            prstmt.close();
+            conn.close();
+            return shortUrl;
         }
         catch (SQLException e) {
             return "longUrl not found";
         }
-    }
-
-    public void shutdown() {
-        try {
-            if (stmt != null) stmt.close();
-            if (conn != null) {
-                DriverManager.getConnection(dbUrl + ";shutdown=true");
-                conn.close();
-            }
-        }
-        catch (SQLException e) {
-            logger.log(Level.SEVERE, "Exception on shutting down DB" + e.getMessage());
-        }
-        logger.log(Level.INFO, "DB shutted down successfully");
     }
 }

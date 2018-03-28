@@ -164,9 +164,4 @@ public class TestUrlShortener {
         assertNotEquals("Urls with https:// and without actually resulted the same short urls, but should not",
                 urlShortener.encodeUrl("https://example"), urlShortener.encodeUrl("example"));
     }
-
-    @AfterClass
-    public static void shutDownDb() {
-        dbConnector.shutdown();
-    }
 }
